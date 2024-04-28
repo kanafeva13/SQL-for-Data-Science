@@ -1,0 +1,537 @@
+Part 1: Yelp Dataset Profiling and Understanding
+
+1. Profile the data by finding the total number of records for each of the tables below:
+  i. Attribute table = 10000
+  ii. Business table = 10000
+  iii. Category table = 10000
+  iv. Checkin table = 10000
+  v. elite_years table = 10000
+  vi. friend table = 10000
+  vii. hours table = 10000
+  viii. photo table = 10000
+  ix. review table = 10000
+  x. tip table = 10000
+  xi. user table = 10000
+
+SELECT 'Attribute table' AS table_name,
+    COUNT(*) AS record_count
+FROM attribute
+UNION
+SELECT 'Business table' AS table_name,
+    COUNT(*) AS record_count
+FROM business
+UNION
+SELECT 'Category table' AS table_name,
+    COUNT(*) AS record_count
+FROM category
+UNION
+SELECT 'Checkin table' AS table_name,
+    COUNT(*) AS record_count
+FROM checkin
+UNION
+SELECT 'Elite_years table' AS table_name,
+    COUNT(*) AS record_count
+FROM elite_years
+UNION
+SELECT 'Friend table' AS table_name,
+    COUNT(*) AS record_count
+FROM friend
+UNION
+SELECT 'Hours table' AS table_name,
+    COUNT(*) AS record_count
+FROM hours
+UNION
+SELECT 'Photo table' AS table_name,
+    COUNT(*) AS record_count
+FROM photo
+UNION
+SELECT 'Review table' AS table_name,
+    COUNT(*) AS record_count
+FROM review
+UNION
+SELECT 'Tip table' AS table_name,
+    COUNT(*) AS record_count
+FROM tip
+UNION
+SELECT 'User table' AS table_name,
+    COUNT(*) AS record_count
+FROM user;
+
++-------------------+--------------+
+| table_name        | record_count |
++-------------------+--------------+
+| Attribute table   |        10000 |
+| Business table    |        10000 |
+| Category table    |        10000 |
+| Checkin table     |        10000 |
+| Elite_years table |        10000 |
+| Friend table      |        10000 |
+| Hours table       |        10000 |
+| Photo table       |        10000 |
+| Review table      |        10000 |
+| Tip table         |        10000 |
+| User table        |        10000 |
++-------------------+--------------+
+
+2. Find the total distinct records by either the foreign key or primary key for each table. If two foreign keys are listed in the table, please specify which foreign key.
+
+i. Business = 10000
+ii. Hours =
+iii. Category =
+iv. Attribute =
+v. Review =
+vi. Checkin = 
+vii. Photo =
+viii. Tip = 
+ix. User = 
+x. Friend = 
+xi. Elite_years =
+
+Note: Primary Keys are denoted in the ER-Diagram with a yellow key icon.
+
+i Business:
+SELECT COUNT(DISTINCT id) AS distinct_records
+FROM business;
+
++------------------+
+| distinct_records |
++------------------+
+|            10000 |
++------------------+
+
+ii Hours:
+SELECT COUNT(DISTINCT business_id) AS distinct_business_records,
+       COUNT(DISTINCT hours) AS distinct_hours_records
+FROM hours;
+
++---------------------------+------------------------+
+| distinct_business_records | distinct_hours_records |
++---------------------------+------------------------+
+|                      1562 |                   2052 |
++---------------------------+------------------------+
+
+iii Category:
+SELECT COUNT(DISTINCT business_id) AS distinct_business_records,
+       COUNT(DISTINCT category) AS distinct_category_records
+FROM category;
+
++---------------------------+---------------------------+
+| distinct_business_records | distinct_category_records |
++---------------------------+---------------------------+
+|                      2643 |                       712 |
++---------------------------+---------------------------+
+
+iv. Attribute:
+SELECT COUNT(DISTINCT business_id) AS distinct_business_records,
+       COUNT(DISTINCT name) AS distinct_attribute_records
+FROM attribute;
+
++---------------------------+----------------------------+
+| distinct_business_records | distinct_attribute_records |
++---------------------------+----------------------------+
+|                      1115 |                         39 |
++---------------------------+----------------------------+
+
+v. Review:
+SELECT COUNT(DISTINCT id) AS distinct_records
+FROM Review;
+
++------------------+
+| distinct_records |
++------------------+
+|            10000 |
++------------------+
+
+vi. Checkin:
+SELECT COUNT(DISTINCT business_id) AS distinct_business_records,
+       COUNT(DISTINCT date) AS distinct_attribute_records
+FROM checkin;
+
++---------------------------+----------------------------+
+| distinct_business_records | distinct_attribute_records |
++---------------------------+----------------------------+
+|                       493 |                        168 |
++---------------------------+----------------------------+
+
+vii. Photo:
+SELECT COUNT(DISTINCT business_id) AS distinct_business_records,
+       COUNT(DISTINCT id) AS distinct_photo_records
+FROM Photo;
+
++---------------------------+------------------------+
+| distinct_business_records | distinct_photo_records |
++---------------------------+------------------------+
+|                      6493 |                  10000 |
++---------------------------+------------------------+
+
+viii. Tip:
+SELECT COUNT(DISTINCT business_id) AS distinct_business_records,
+       COUNT(DISTINCT user_id) AS distinct_user_records
+FROM tip;
+
++---------------------------+-----------------------+
+| distinct_business_records | distinct_user_records |
++---------------------------+-----------------------+
+|                      3979 |                   537 |
++---------------------------+-----------------------+
+
+ix. User:
+SELECT COUNT(DISTINCT id) AS distinct_records
+FROM user;
+
++------------------+
+| distinct_records |
++------------------+
+|            10000 |
++------------------+
+
+x. Friend:
+SELECT COUNT(DISTINCT user_id) AS distinct_user_records,
+       COUNT(DISTINCT friend_id) AS distinct_friend_records
+FROM friend;
+
++-----------------------+-------------------------+
+| distinct_user_records | distinct_friend_records |
++-----------------------+-------------------------+
+|                    11 |                    9415 |
++-----------------------+-------------------------+
+
+xi. Elite_years:
+SELECT COUNT(DISTINCT user_id) AS distinct_user_records,
+       COUNT(DISTINCT year) AS distinct_elite_year_records
+FROM elite_years;
+
++-----------------------+-----------------------------+
+| distinct_user_records | distinct_elite_year_records |
++-----------------------+-----------------------------+
+|                  2780 |                          13 |
++-----------------------+-----------------------------+
+
+3. Are there any columns with null values in the Users table? Indicate "yes," or "no."
+  
+	SQL code used to arrive at answer:
+SELECT 
+    CASE
+        WHEN COUNT(*) > 0 THEN 'yes'
+        ELSE 'no'
+    END AS any_null_values
+FROM user
+WHERE 
+    id IS NULL OR
+    name IS NULL OR
+    review_count IS NULL OR
+    yelping_since IS NULL OR
+    useful IS NULL OR
+    funny IS NULL OR
+    cool IS NULL OR
+    fans IS NULL OR
+    average_stars IS NULL OR
+    compliment_hot IS NULL OR
+    compliment_more IS NULL OR
+    compliment_profile IS NULL OR
+    compliment_cute IS NULL OR
+    compliment_list IS NULL OR
+    compliment_note IS NULL OR
+    compliment_plain IS NULL OR
+    compliment_cool IS NULL OR
+    compliment_funny IS NULL OR
+    compliment_writer IS NULL OR
+    compliment_photos IS NULL;
+
+  Answer:
++-----------------+
+| any_null_values |
++-----------------+
+| no              |
++-----------------+
+
+4. For each table and column listed below, display the smallest (minimum), largest (maximum), and average (mean) value for the following fields:
+
+	i. Table: Review, Column: Stars
+	
+		min:		max:		avg:
+		
+	ii. Table: Business, Column: Stars
+	
+		min:		max:		avg:
+	
+	iii. Table: Tip, Column: Likes
+	
+		min:		max:		avg:
+		
+	iv. Table: Checkin, Column: Count
+	
+		min:		max:		avg:
+		
+	v. Table: User, Column: Review_count
+	
+		min:		max:		avg:
+
+SELECT 'review: stars' AS 'table: column',
+        MIN(stars) AS 'min:',
+        MAX(stars) AS 'max:',
+        AVG(stars) AS 'avg:'
+FROM review
+UNION
+SELECT 'business: stars' AS 'table: column',
+        MIN(stars) AS 'min:',
+        MAX(stars) AS 'max:',
+        AVG(stars) AS 'avg:'
+FROM business
+UNION
+SELECT 'tip: likes' AS 'table: column',
+        MIN(likes) AS 'min:',
+        MAX(likes) AS 'max:',
+        AVG(likes) AS 'avg:'
+FROM tip
+UNION
+SELECT 'checkin: count' AS 'table: column',
+        MIN(count) AS 'min:',
+        MAX(count) AS 'max:',
+        AVG(count) AS 'avg:'
+FROM checkin
+UNION
+SELECT 'user: review_count' AS 'table: column',
+        MIN(review_count) AS 'min:',
+        MAX(review_count) AS 'max:',
+        AVG(review_count) AS 'avg:'
+FROM user;
+
++--------------------+------+------+---------+
+| table: column      | min: | max: |    avg: |
++--------------------+------+------+---------+
+| business: stars    |  1.0 |  5.0 |  3.6549 |
+| checkin: count     |    1 |   53 |  1.9414 |
+| review: stars      |    1 |    5 |  3.7082 |
+| tip: likes         |    0 |    2 |  0.0144 |
+| user: review_count |    0 | 2000 | 24.2995 |
++--------------------+------+------+---------+
+
+5. List the cities with the most reviews in descending order:
+
+	SQL code used to arrive at answer:
+
+SELECT city,
+        sum(review_count) AS total_reviews
+FROM business
+GROUP BY city
+ORDER BY total_reviews DESC;
+
+	Copy and Paste the Result Below:
++-----------------+---------------+
+| city            | total_reviews |
++-----------------+---------------+
+| Las Vegas       |         82854 |
+| Phoenix         |         34503 |
+| Toronto         |         24113 |
+| Scottsdale      |         20614 |
+| Charlotte       |         12523 |
+| Henderson       |         10871 |
+| Tempe           |         10504 |
+| Pittsburgh      |          9798 |
+| Montréal        |          9448 |
+| Chandler        |          8112 |
+| Mesa            |          6875 |
+| Gilbert         |          6380 |
+| Cleveland       |          5593 |
+| Madison         |          5265 |
+| Glendale        |          4406 |
+| Mississauga     |          3814 |
+| Edinburgh       |          2792 |
+| Peoria          |          2624 |
+| North Las Vegas |          2438 |
+| Markham         |          2352 |
+| Champaign       |          2029 |
+| Stuttgart       |          1849 |
+| Surprise        |          1520 |
+| Lakewood        |          1465 |
+| Goodyear        |          1155 |
++-----------------+---------------+
+(Output limit exceeded, 25 of 362 total rows shown)
+
+6. Find the distribution of star ratings to the business in the following cities:
+
+i. Avon
+
+SQL code used to arrive at answer:
+SELECT stars AS 'star rating',
+        COUNT(stars) AS 'count'
+FROM business
+WHERE city = 'Avon'
+GROUP BY stars;
+
+Copy and Paste the Resulting Table Below (2 columns â€“ star rating and count):
++-------------+-------+
+| star rating | count |
++-------------+-------+
+|         1.5 |     1 |
+|         2.5 |     2 |
+|         3.5 |     3 |
+|         4.0 |     2 |
+|         4.5 |     1 |
+|         5.0 |     1 |
++-------------+-------+
+
+ii. Beachwood
+
+SQL code used to arrive at answer:
+SELECT stars AS 'star rating',
+        COUNT(stars) AS 'count'
+FROM business
+WHERE city = 'Beachwood'
+GROUP BY stars;
+
+Copy and Paste the Resulting Table Below (2 columns â€“ star rating and count):
++-------------+-------+
+| star rating | count |
++-------------+-------+
+|         2.0 |     1 |
+|         2.5 |     1 |
+|         3.0 |     2 |
+|         3.5 |     2 |
+|         4.0 |     1 |
+|         4.5 |     2 |
+|         5.0 |     5 |
++-------------+-------+
+
+7. Find the top 3 users based on their total number of reviews:
+		
+	SQL code used to arrive at answer:
+SELECT id,
+        name,
+        review_count
+FROM user
+ORDER BY review_count DESC
+LIMIT 3;
+		
+	Copy and Paste the Result Below:
++------------------------+--------+--------------+
+| id                     | name   | review_count |
++------------------------+--------+--------------+
+| -G7Zkl1wIWBBmD0KRy_sCw | Gerald |         2000 |
+| -3s52C4zL_DHRK0ULG6qtg | Sara   |         1629 |
+| -8lbUNlXVSoXqaRRiHiSNg | Yuri   |         1339 |
++------------------------+--------+--------------+
+
+8. Does posing more reviews correlate with more fans?
+No, more reviews do not correlate with more fans.
+
+SELECT name,
+        fans,
+        review_count
+FROM user
+ORDER BY review_count DESC
+LIMIT 10;
+
++-----------+------+--------------+
+| name      | fans | review_count |
++-----------+------+--------------+
+| Gerald    |  253 |         2000 |
+| Sara      |   50 |         1629 |
+| Yuri      |   76 |         1339 |
+| .Hon      |  101 |         1246 |
+| William   |  126 |         1215 |
+| Harald    |  311 |         1153 |
+| eric      |   16 |         1116 |
+| Roanna    |  104 |         1039 |
+| Mimi      |  497 |          968 |
+| Christine |  173 |          930 |
++-----------+------+--------------+
+
+Please explain your findings and interpretation of the results:
+Having more reviews does not necessarily correlate with having more fans. Interestingly, among the top three users with the highest review counts, some have fewer fans compared to users with fewer reviews. This observation suggests that the number of fans a user has may be influenced by factors beyond simply the quantity of reviews they've written. Factors such as a user's perspective, lifestyle, and other variables could play a significant role in determining the number of fans they attract.
+
+9. Are there more reviews with the word "love" or with the word "hate" in them?
+
+	Answer:
+There are more reviews with the word 'love' (1780) than with the word 'hate' (232). 
+
+	SQL code used to arrive at answer:
+SELECT (SELECT COUNT(text)
+        FROM review
+		    WHERE text LIKE "%love%") AS  'text with love', 
+
+		    (SELECT COUNT(text) 
+		    FROM review
+		    WHERE text LIKE "%hate%") AS 'text with hate';
+
++----------------+----------------+
+| text with love | text with hate |
++----------------+----------------+
+|           1780 |            232 |
++----------------+----------------+
+
+10. Find the top 10 users with the most fans:
+
+	SQL code used to arrive at answer:
+SELECT name,
+      fans
+FROM user
+ORDER BY fans DESC
+LIMIT 10;
+	
+	Copy and Paste the Result Below:
++-----------+------+
+| name      | fans |
++-----------+------+
+| Amy       |  503 |
+| Mimi      |  497 |
+| Harald    |  311 |
+| Gerald    |  253 |
+| Christine |  173 |
+| Lisa      |  159 |
+| Cat       |  133 |
+| William   |  126 |
+| Fran      |  124 |
+| Lissa     |  120 |
++-----------+------+
+
+Part 2: Inferences and Analysis
+
+1. Pick one city and category of your choice and group the businesses in that city or category by their overall star rating. Compare the businesses with 2-3 stars to the businesses with 4-5 stars and answer the following questions. Include your code.
+
+City: Las Vegas
+Category: shopping
+
+SQL code used for analysis:
+SELECT b.name, 
+        b.city,
+        c.category,
+        b.stars,
+        hours.hours,
+        b.review_count,
+        b.postal_code
+FROM (business b INNER JOIN category c ON b.id = c.business_id)
+INNER JOIN hours ON hours.business_id = c.business_id
+WHERE b.city = 'Las Vegas' AND c.category = 'Shopping'
+GROUP BY b.stars;
+
++--------------------------------+-----------+----------+-------+----------------------+--------------+-------------+
+| name                           | city      | category | stars | hours                | review_count | postal_code |
++--------------------------------+-----------+----------+-------+----------------------+--------------+-------------+
+| Walgreens                      | Las Vegas | Shopping |   2.5 | Saturday|8:00-22:00  |            6 | 89121       |
+| Wooly Wonders                  | Las Vegas | Shopping |   3.5 | Saturday|10:00-16:00 |           11 | 89121       |
+| Red Rock Canyon Visitor Center | Las Vegas | Shopping |   4.5 | Saturday|8:00-16:30  |           32 | 89161       |
+| Desert Medical Equipment       | Las Vegas | Shopping |   5.0 | Monday|8:00-17:00    |            4 | 89118       |
++--------------------------------+-----------+----------+-------+----------------------+--------------+-------------+
+
+i. Do the two groups you chose to analyze have a different distribution of hours?
+Yes
+
+ii. Do the two groups you chose to analyze have a different number of reviews?
+Yes         
+         
+iii. Are you able to infer anything from the location data provided between these two groups? Explain.
+We can see that both stores - 'Walgreens' and 'Wooly Wonders' are located in the same county (89121), and they both have rating below 4.0.
+Businesses that have rating above 4.0 are located in different counties but they have similar working hours: since 8 AM until 4:30-5:00 PM.
+
+2. Group business based on the ones that are open and the ones that are closed. What differences can you find between the ones that are still open and the ones that are closed? List at least two differences and the SQL code you used to arrive at your answer.
+		
+i. Difference 1:
+         
+         
+ii. Difference 2:
+         
+         
+         
+SQL code used for analysis:
