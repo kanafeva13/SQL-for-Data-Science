@@ -528,10 +528,77 @@ Businesses that have rating above 4.0 are located in different counties but they
 2. Group business based on the ones that are open and the ones that are closed. What differences can you find between the ones that are still open and the ones that are closed? List at least two differences and the SQL code you used to arrive at your answer.
 		
 i. Difference 1:
-         
+The business that is already closed has lower star rating than the business that is open.
          
 ii. Difference 2:
-         
+However, the business that is closed has more reviews than one that is open. The reason can be that Desert Medical Equipment was opened recently.         
          
          
 SQL code used for analysis:
+SELECT b.name,
+        b.is_open,
+        c.category,
+        b.stars,
+        h.hours,
+        b.review_count,
+        b.postal_code
+FROM (business b 
+INNER JOIN category c
+    ON b.id = c.business_id)
+INNER JOIN hours h 
+    ON h.business_id = c.business_id
+WHERE b.city = 'Las Vegas' 
+GROUP BY b.is_open;
+
++--------------------------+---------+-------------+-------+----------------------+--------------+-------------+
+| name                     | is_open | category    | stars | hours                | review_count | postal_code |
++--------------------------+---------+-------------+-------+----------------------+--------------+-------------+
+| Jacques Cafe             |       0 | Gluten-Free |   4.0 | Saturday|11:00-20:00 |          168 | 89134       |
+| Desert Medical Equipment |       1 | Shopping    |   5.0 | Monday|8:00-17:00    |            4 | 89118       |
++--------------------------+---------+-------------+-------+----------------------+--------------+-------------+
+
+3. For this last part of your analysis, you are going to choose the type of analysis you want to conduct on the Yelp dataset and are going to prepare the data for analysis.
+
+Ideas for analysis include: Parsing out keywords and business attributes for sentiment analysis, clustering businesses to find commonalities or anomalies between them, predicting the overall star rating for a business, predicting the number of fans a user will have, and so on. These are just a few examples to get you started, so feel free to be creative and come up with your own problem you want to solve. Provide answers, in-line, to all of the following:
+	
+i. Indicate the type of analysis you chose to do:
+Finding the correlation between amount of fans that user have and years of user activity on Yelp.         
+         
+ii. Write 1-2 brief paragraphs on the type of data you will need for your analysis and why you chose that data:
+I need data from 2 tables: user table and elite_years table. From user table I can get data about user and amount of fans that user have. From elite_years table I can calculate for how many years the user was active on Yelp (current_year - elite_year).
+Using this analysis I will test a hypothesis that amount of fans directly correlates with amount of years.
+                  
+iii. Output of your finished dataset:
++--------+------+------+-----------+
+| name   | fans | year | reg_years |
++--------+------+------+-----------+
+| Lissa  |  120 | 2011 | 13        |
+| Lissa  |  120 | 2015 | 9         |
+| Lissa  |  120 | 2014 | 10        |
+| Lissa  |  120 | 2017 | 7         |
+| Lissa  |  120 | 2016 | 8         |
+| Lissa  |  120 | 2009 | 15        |
+| Lissa  |  120 | 2010 | 14        |
+| Lissa  |  120 | 2012 | 12        |
+| Lissa  |  120 | 2013 | 11        |
+| Nieves |   80 | 2016 | 8         |
+| Nieves |   80 | 2017 | 7         |
+| Nieves |   80 | 2015 | 9         |
+| Nieves |   80 | 2014 | 10        |
+| Dixie  |   41 | 2017 | 7         |
+| Dixie  |   41 | 2012 | 12        |
++--------+------+------+-----------+ 
+
+As wa can see amount of registered years does not correlate with amount af fans. The user can be registered for 12 years and have 120 fans or have 41 fans for the same amount of years.
+So, we can assume that amount of depends on other factors.
+         
+iv. Provide the SQL code you used to create your final dataset:
+SELECT u.name,
+        u.fans,
+        e.year,
+        STRFTIME (2024 - e.year) AS reg_years
+FROM user u
+INNER JOIN elite_years e
+    ON u.id = e.user_id
+ORDER BY u.fans DESC
+LIMIT 15;
