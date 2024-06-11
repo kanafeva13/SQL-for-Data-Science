@@ -9,13 +9,12 @@
 -- COMMAND ----------
 
 -- MAGIC %md
--- MAGIC # Queries in Spark SQL
--- MAGIC ## Module 1 Assignment
+-- MAGIC # Spark Internals
+-- MAGIC ## Module 2 Assignment
 -- MAGIC
 -- MAGIC ## ![Spark Logo Tiny](https://files.training.databricks.com/images/105/logo_spark_tiny.png) In this assignment you:
--- MAGIC * Create a table
--- MAGIC * Write SQL queries
--- MAGIC
+-- MAGIC * Analyze the effects of caching data
+-- MAGIC * Speed up Spark queries by changing default configurations
 -- MAGIC
 -- MAGIC For each **bold** question, input its answer in Coursera.
 
@@ -26,224 +25,77 @@
 -- COMMAND ----------
 
 -- MAGIC %md
--- MAGIC ### Working with Incident Data
--- MAGIC
--- MAGIC For this assignment, we'll be using a new dataset: the [SF Fire Incident](https://data.sfgov.org/Public-Safety/Fire-Incidents/wr8u-xric) dataset.  It has been mounted for you using the script above.  The path to this dataset is as follows:
--- MAGIC
--- MAGIC `/mnt/davis/fire-incidents/fire-incidents-2016.csv`
--- MAGIC
--- MAGIC In this assignment, you will read the dataset and perform a number of different queries.
+-- MAGIC Make sure nothing is already cached by clearing the cache (**NOTE**: This will affect all users on this cluster).
+
+-- COMMAND ----------
+
+CLEAR CACHE
 
 -- COMMAND ----------
 
 -- MAGIC %md
--- MAGIC ## ![Spark Logo Tiny](https://files.training.databricks.com/images/105/logo_spark_tiny.png) Create a Table
 -- MAGIC
--- MAGIC Create a new table called `fireIncidents` for this dataset.  Be sure to use options to properly parse the data.
-
--- COMMAND ----------
-
-CREATE TABLE fireIncidents
-USING CSV
-OPTIONS (
-  header "true",
-  path "/mnt/davis/fire-incidents/fire-incidents-2016.csv",
-  inferSchema "true"
-)
-
--- COMMAND ----------
-
--- MAGIC %md
 -- MAGIC ### Question 1
 -- MAGIC
--- MAGIC Return the first 10 lines of the data.  On the Coursera platform, input the result to the following question:
--- MAGIC
--- MAGIC **What is the first value for "Incident Number"?**
+-- MAGIC **How many fire calls are in our `fireCalls` table?**
 
 -- COMMAND ----------
 
-SELECT *
-FROM fireincidents
-LIMIT 10
+SELECT count(*)
+FROM fireCalls
 
 -- COMMAND ----------
 
 -- MAGIC %md
--- MAGIC ## ![Spark Logo Tiny](https://files.training.databricks.com/images/105/logo_spark_tiny.png) `WHERE` Clauses
 -- MAGIC
--- MAGIC A `WHERE` clause is used to filter data that meets certain criteria, returning all values that evaluate to be true. 
-
--- COMMAND ----------
-
--- MAGIC %md
 -- MAGIC ### Question 2
 -- MAGIC
--- MAGIC Return all incidents that occurred on Conor's birthday in 2016.  For those of you who forgot his birthday, it's April 4th.  On the Coursera platform, input the result to the following question:
+-- MAGIC **How large is our `fireCalls` dataset in memory?** Input just the numeric value (e.g. `51.2`) to Coursera.
 -- MAGIC
--- MAGIC **What is the first value for "Incident Number" on April 4th, 2016?** 
--- MAGIC
--- MAGIC **Remember to use backticks (\`\`) instead of single quotes ('') for columns that have spaces in the name. **
+-- MAGIC Cache the table, then navigate the Spark UI.
 
 -- COMMAND ----------
 
-SELECT `Incident Number`, `Incident Date`
-FROM fireincidents
-WHERE `Incident Date` = "2016-04-04"
+CACHE TABLE firecalls
 
 -- COMMAND ----------
 
 -- MAGIC %md
 -- MAGIC ### Question 3
 -- MAGIC
--- MAGIC Return all incidents that occurred on Conor's _or_ Brooke's birthday.  For those of you who forgot her birthday too, it's `9/27`.
--- MAGIC
--- MAGIC **Is the first fire call in this table on Brooke or Conor's birthday?**
+-- MAGIC **Which "Unit Type" is the most common?**
 
 -- COMMAND ----------
 
-SELECT `Incident Number`, `Incident Date`
-FROM fireincidents
-WHERE `Incident Date` = "2016-04-04" OR `Incident Date` = "2016-09-27"
+SELECT `Unit Type`, count(*) AS count
+FROM firecalls
+GROUP BY `Unit Type`
+ORDER BY count DESC
 
 -- COMMAND ----------
 
 -- MAGIC %md
 -- MAGIC ### Question 4
--- MAGIC Return all incidents on either Conor or Brooke's birthday where the `Station Area` is greater than 20.
 -- MAGIC
--- MAGIC **What is the "Station Area" for the first fire call in this table?**
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ## ![Spark Logo Tiny](https://files.training.databricks.com/images/105/logo_spark_tiny.png) Aggregate Functions
--- MAGIC
--- MAGIC Aggregate functions compute a single result value from a set of input values.  Use the aggregate function `COUNT` to count the total records in the dataset.
-
--- COMMAND ----------
-
-SELECT `Incident Number`, `Incident Date`, `Station Area`
-FROM fireincidents
-WHERE `Incident Date` = "2016-04-04" OR `Incident Date` = "2016-09-27"
-  AND `Station Area` > 20
+-- MAGIC **What type of transformation, `wide` or `narrow`, did the `GROUP BY` and `ORDER BY` queries result in? **
 
 -- COMMAND ----------
 
 -- MAGIC %md
 -- MAGIC ### Question 5
 -- MAGIC
--- MAGIC Count the incidents on Conor's birthday.
+-- MAGIC **Looking at the query below, how many tasks are in the last stage of the last job?**
 -- MAGIC
--- MAGIC **How many incidents were on Conor's birthday in 2016?**
+-- MAGIC Check the Spark UI and see how many tasks were launched. Did it use the shuffle partitions value defined? 
 
 -- COMMAND ----------
 
-SELECT   COUNT(`Incident Number`) AS incidents
-FROM fireincidents
-WHERE `Incident Date` = "2016-04-04"
+SET spark.sql.shuffle.partitions=8;
 
--- COMMAND ----------
+SELECT `Neighborhooods - Analysis Boundaries`, AVG(Priority) as avgPriority
+FROM fireCalls
+GROUP BY `Neighborhooods - Analysis Boundaries`
 
--- MAGIC %md-sandbox
--- MAGIC ### Question 6
--- MAGIC
--- MAGIC Return the total counts by `Ignition Cause`.  Be sure to return the field `Ignition Cause` as well.
--- MAGIC
--- MAGIC <img alt="Hint" title="Hint" style="vertical-align: text-bottom; position: relative; height:1.75em; top:0.3em" src="https://files.training.databricks.com/static/images/icon-light-bulb.svg"/>&nbsp;**Hint:** You'll have to use `GROUP BY` for this
--- MAGIC
--- MAGIC **How many fire calls had an "Ignition Cause" of "4 act of nature"?**
-
--- COMMAND ----------
-
-SELECT `Ignition Cause`,
-  COUNT(`Ignition Cause`) AS total
-FROM fireincidents
-GROUP BY `Ignition Cause`
-
--- COMMAND ----------
-
--- MAGIC %md-sandbox
--- MAGIC ## ![Spark Logo Tiny](https://files.training.databricks.com/images/105/logo_spark_tiny.png) Sorting
--- MAGIC
--- MAGIC ### Question 7
--- MAGIC
--- MAGIC Return the total counts by `Ignition Cause` sorted in ascending order.
--- MAGIC
--- MAGIC <img alt="Hint" title="Hint" style="vertical-align: text-bottom; position: relative; height:1.75em; top:0.3em" src="https://files.training.databricks.com/static/images/icon-light-bulb.svg"/>&nbsp;**Hint:** You'll have to use `ORDER BY` for this.
--- MAGIC
--- MAGIC **What is the most common "Ignition Cause"? (Put the entire string)**
-
--- COMMAND ----------
-
-SELECT `Ignition Cause`,
-  COUNT(`Ignition Cause`) AS total
-FROM fireincidents
-GROUP BY `Ignition Cause`
-ORDER BY total ASC
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC Return the total counts by `Ignition Cause` sorted in descending order.
-
--- COMMAND ----------
-
-SELECT `Ignition Cause`,
-  COUNT(`Ignition Cause`) AS total
-FROM fireincidents
-GROUP BY `Ignition Cause`
-ORDER BY total DESC
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ## ![Spark Logo Tiny](https://files.training.databricks.com/images/105/logo_spark_tiny.png) Joins
--- MAGIC
--- MAGIC Create the table `fireCalls` if it doesn't already exist.  The path is as follows: `/mnt/davis/fire-calls/fire-calls-truncated-comma.csv`
-
--- COMMAND ----------
-
-CREATE TABLE IF NOT EXISTS firecalls
-USING CSV
-OPTIONS (
-  header "true",
-  path "/mnt/davis/fire-calls/fire-calls-truncated-comma.csv",
-  inferSchema "true"
-)
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC Join the two tables on `Battalion` by performing an inner join.
-
--- COMMAND ----------
-
-SELECT *
-FROM fireincidents fi
-INNER JOIN firecalls fc
-  ON fi.Battalion = fc.Battalion
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ### Question 8
--- MAGIC
--- MAGIC Count the total incidents from the two tables joined on `Battalion`.
--- MAGIC
--- MAGIC **What is the total incidents from the two joined tables?**
-
--- COMMAND ----------
-
-SELECT count(fi.`Incident Number`) AS total
-FROM fireincidents fi
-INNER JOIN firecalls fc
-  ON fi.Battalion = fc.Battalion
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC Congratulations!  You made it to the end of the assignment!
--- MAGIC
 
 -- COMMAND ----------
 
